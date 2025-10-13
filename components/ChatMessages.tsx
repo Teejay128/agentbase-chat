@@ -8,7 +8,7 @@ import {
 	ReasoningTrigger,
 } from "@/components/ui/reasoning";
 import { Separator } from "@/components/ui/separator";
-// import { Tool } from "@/components/ui/tool";
+import { Tool } from "@/components/ui/tool";
 
 import { SessionMessage } from "@/lib/types";
 
@@ -84,42 +84,49 @@ export function AgentMessage({ response }: { response: SessionMessage }) {
 				</div>
 			);
 
-		// case "agent_tool_use":
-		// 	if (!response.content) return null;
-		// 	let toolName: string;
-		// 	let toolInput;
+		case "agent_tool_use":
+			if (!response.content) return null;
 
-		// 	try {
-		// 		const parsedContent = JSON.parse(response.content);
-		// 		toolName = parsedContent.tool;
-		// 		try {
-		// 			toolInput =
-		// 				typeof parsedContent.input === "string"
-		// 					? JSON.parse(parsedContent.input)
-		// 					: parsedContent.input;
-		// 		} catch (innerError) {
-		// 			console.warn("Failed to parse tool input:", innerError);
-		// 			toolInput = {
-		// 				input: parsedContent.input || "Unknown input",
-		// 			};
-		// 		}
-		// 		toolInput = parsedContent.input;
-		// 	} catch (e) {
-		// 		console.error("Failed to parse content: ", e);
-		// 		toolName = "unknown tool";
-		// 		toolInput = { input: "Unknown tool input" };
-		// 	}
-		// 	return (
-		// 		<div className={`${paddingWrapperClass}`}>
-		// 			<Tool
-		// 				toolPart={{
-		// 					type: toolName || "Unknown tool",
-		// 					state: "output-available",
-		// 					input: toolInput || {},
-		// 				}}
-		// 			/>
-		// 		</div>
-		// 	);
+			let toolName: string;
+			let toolInput;
+
+			try {
+				const parsedContent = JSON.parse(response.content);
+
+				toolName = parsedContent.tool || "Unknown Tool";
+
+				try {
+					toolInput =
+						typeof parsedContent.input === "string"
+							? JSON.parse(parsedContent.input)
+							: parsedContent.input;
+				} catch (innerError) {
+					console.warn("Failed to parse tool input:", innerError);
+					toolInput = {
+						error: "Unable to parse tool input, but the tool executed successfully.",
+						rawInput: parsedContent.input || null,
+					};
+				}
+			} catch (outerError) {
+				console.error("Failed to parse content:", outerError);
+
+				toolName = "Tool Execution (Parse Error)";
+				toolInput = {
+					error: "There was an error displaying the tool's output. The tool ran successfully, but its data could not be parsed.",
+				};
+			}
+
+			return (
+				<div className={paddingWrapperClass}>
+					<Tool
+						toolPart={{
+							type: toolName,
+							state: "output-available",
+							input: toolInput,
+						}}
+					/>
+				</div>
+			);
 
 		case "agent_response":
 			console.log("DUIHDSKJUIEHKERNJKNDFUIONUIDUIFDFIU");
