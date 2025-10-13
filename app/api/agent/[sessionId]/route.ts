@@ -3,11 +3,11 @@ import { getAgentbaseClient } from "@/lib/agentbase";
 
 // GET /api/agent/[sessionId]
 export async function GET(
-	request: NextRequest,
-	{ params }: { params: { sessionId: string } }
+	_request: NextRequest,
+	context: { params: Promise<{ sessionId: string }> }
 ) {
 	try {
-		const { sessionId } = await params;
+		const { sessionId } = await context.params;
 
 		if (!sessionId) {
 			return NextResponse.json(
