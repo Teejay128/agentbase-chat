@@ -14,52 +14,34 @@
 
 "use client";
 
+import Image from "next/image";
+
+import { PlusIcon, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	Sidebar,
 	SidebarContent,
-	SidebarGroup,
-	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
+	SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { PlusIcon, Search } from "lucide-react";
 
-// Conversation history structure (empty by default)
-const conversationHistory: ConversationGroup[] = [
-	{
-		period: "Today",
-		conversations: [],
-	},
-	{
-		period: "Yesterday",
-		conversations: [],
-	},
-	{
-		period: "Last 7 days",
-		conversations: [],
-	},
-	{
-		period: "Last month",
-		conversations: [],
-	},
-];
+import { Session } from "@/lib/types";
 
-// Conversation structure for sidebar
-interface Conversation {
-	id: string;
-	title: string;
-	lastMessage: string;
-	timestamp: number;
+interface ChatSidebarProps {
+	sessionId: string | null;
+	sessionList: Session[];
+	switchSession: (session: Session) => Promise<void>;
+	newConversation: () => void;
 }
 
-interface ConversationGroup {
-	period: string;
-	conversations: Conversation[];
-}
-
-export function ChatSidebar() {
+export function ChatSidebar({
+	sessionId,
+	sessionList,
+	switchSession,
+	newConversation,
+}: ChatSidebarProps) {
 	return (
 		<Sidebar>
 			<SidebarHeader className="flex flex-row items-center justify-between gap-2 px-2 py-4">
@@ -69,10 +51,11 @@ export function ChatSidebar() {
 					rel="noopener noreferrer"
 					className="flex flex-row items-center gap-2 px-2 hover:opacity-80 transition-opacity"
 				>
-					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img
+					<Image
 						src="https://www.agentbase.sh/logos/agentbase.svg"
 						alt="Agentbase"
+						width={32}
+						height={32}
 						className="size-8"
 					/>
 					<div className="text-md font-base text-primary tracking-tight">
@@ -88,29 +71,44 @@ export function ChatSidebar() {
 					<Button
 						variant="outline"
 						className="mb-4 flex w-full items-center gap-2"
+						onClick={newConversation}
+						disabled={sessionId == null}
 					>
 						<PlusIcon className="size-4" />
 						<span>New Chat</span>
 					</Button>
 				</div>
-				{conversationHistory.map((group) => (
-					<SidebarGroup key={group.period}>
-						<SidebarGroupLabel>{group.period}</SidebarGroupLabel>
-						<SidebarMenu>
-							{group.conversations.length === 0 ? (
-								<div className="px-2 py-1 text-sm text-muted-foreground">
-									No conversations yet
-								</div>
-							) : (
-								group.conversations.map((conversation) => (
-									<SidebarMenuButton key={conversation.id}>
-										<span>{conversation.title}</span>
-									</SidebarMenuButton>
-								))
-							)}
-						</SidebarMenu>
-					</SidebarGroup>
-				))}
+
+				<SidebarMenu className="px-2">
+					{sessionList.length === 0 ? (
+						<div className="px-2 py-1 text-sm text-muted-foreground h-full">
+							No sessions yet
+						</div>
+					) : (
+						sessionList.map((session) => (
+							<SidebarMenuItem key={session.id} className="p-0">
+								<SidebarMenuButton
+									title={`Session ID: ${session.id}`}
+									data-active={sessionId == session.id}
+									className={
+										sessionId == session.id
+											? "bg-accent text-accent-foreground"
+											: ""
+									}
+									onClick={async () => {
+										await switchSession(session);
+									}}
+								>
+									<span className="text-sm font-medium">
+										{new Date(
+											session.timestamp
+										).toLocaleString()}
+									</span>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+						))
+					)}
+				</SidebarMenu>
 			</SidebarContent>
 		</Sidebar>
 	);

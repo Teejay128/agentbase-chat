@@ -1,0 +1,154 @@
+/**
+ * Agentbase Chat - Home Page
+ *
+ * Open-source Next.js chat application template powered by Agentbase AI agents.
+ * Original template by Agentbase - https://agentbase.sh
+ */
+
+"use client";
+
+import React, { useState, useEffect } from "react";
+
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { Popover, PopoverContent } from "@/components/ui/popover";
+
+import { ChatHeader } from "@/components/ChatHeader";
+import { ChatInput } from "@/components/ChatInput";
+import { ChatSidebar } from "@/components/ChatSidebar";
+import { ChatContent } from "@/components/ChatContent";
+import { AgentConfig } from "@/components/AgentConfig";
+
+import { SessionMessage, Session } from "@/lib/types";
+import { readSessionList, writeSessionList } from "@/lib/localStorage";
+import { fetchSessionMessages, fetchAgentResponse } from "@/lib/api";
+
+type AgentMode = "flash" | "fast" | "max";
+
+export default function FullChatApp() {
+	const [sessionId, setSessionId] = useState<string | null>(null);
+	const [sessionList, setSessionList] = useState<Session[]>([]);
+	const [sessionMessages, setSessionMessages] = useState<SessionMessage[]>(
+		[]
+	);
+	const [agentMode, setAgentMode] = useState<AgentMode>("fast");
+	const [agentSystem, setAgentSystem] = useState<string>("");
+	const [agentRules, setAgentRules] = useState<string[]>([]);
+
+	const [errorMessage, setErrorMessage] = useState<string>("");
+	const [isLoading, setIsLoading] = useState(false);
+
+	const newConversation = () => {
+		setSessionId(null);
+		setSessionMessages([]);
+		setIsLoading(false);
+	};
+
+	const createNewSession = async (newSessionId: string) => {
+		const exists = sessionList.some((s) => s.id === newSessionId);
+		if (exists) return;
+
+		const newSession = {
+			id: newSessionId,
+			timestamp: Date.now(),
+		};
+
+		setSessionId(newSessionId);
+		setSessionList((prev) => [newSession, ...prev]);
+	};
+
+	const switchSession = async (session: Session) => {
+		if (session.id === sessionId) return;
+		try {
+			const fetchedMessages = await fetchSessionMessages(session.id);
+
+			setSessionId(session.id);
+			setSessionMessages(fetchedMessages);
+		} catch (error) {
+			throw new Error("Function not implemented:" + error);
+		}
+	};
+
+	const handleSubmit = async (prompt: string) => {
+		if (!prompt.trim() || isLoading) return;
+
+		const userMessage: SessionMessage = {
+			type: "user_message",
+			content: prompt.trim(),
+		};
+
+		setSessionMessages((prev) => [...prev, userMessage]);
+		setIsLoading(true);
+		setErrorMessage("");
+
+		if (!userMessage.content) return;
+
+		try {
+			const agentResponse = await fetchAgentResponse({
+				message: userMessage.content,
+				sessionId,
+				mode: agentMode,
+				agentSystem,
+				agentRules,
+			});
+
+			const newSessionId = agentResponse[0]?.session || null;
+			if (newSessionId && newSessionId !== sessionId) {
+				createNewSession(newSessionId);
+			}
+
+			setSessionMessages((prev) => [...prev, ...agentResponse]);
+		} catch (err) {
+			setErrorMessage(
+				err instanceof Error ? err.message : "An error occurred"
+			);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		setSessionList(readSessionList());
+	}, []);
+
+	useEffect(() => {
+		writeSessionList(sessionList);
+	}, [sessionList]);
+
+	return (
+		<SidebarProvider>
+			<Popover>
+				<ChatSidebar
+					sessionId={sessionId}
+					sessionList={sessionList}
+					switchSession={switchSession}
+					newConversation={newConversation}
+				/>
+				<SidebarInset>
+					<PopoverContent className="w-80">
+						<AgentConfig
+							agentMode={agentMode}
+							setAgentMode={setAgentMode}
+							agentSystem={agentSystem}
+							setAgentSystem={setAgentSystem}
+							agentRules={agentRules}
+							setAgentRules={setAgentRules}
+						/>
+					</PopoverContent>
+					<main className="flex h-screen flex-col overflow-hidden">
+						<ChatHeader />
+						<ChatContent
+							sessionMessages={sessionMessages}
+							isLoading={isLoading}
+							errorMessage={errorMessage}
+						/>
+						<ChatInput
+							sessionId={sessionId}
+							isLoading={isLoading}
+							handleSubmit={handleSubmit}
+						/>
+					</main>
+				</SidebarInset>
+			</Popover>
+		</SidebarProvider>
+	);
+}

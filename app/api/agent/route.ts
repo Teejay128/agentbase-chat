@@ -1,33 +1,10 @@
-/**
- * Agentbase API Route
- *
- * This API endpoint integrates with the Agentbase SDK to power AI chat functionality.
- * Template originally created by Agentbase - https://agentbase.sh
- *
- * Learn more: https://docs.agentbase.sh
- */
-
 import { NextRequest, NextResponse } from "next/server";
-import Agentbase from "agentbase-sdk";
-
-// Create agentbase client
-function createAgentbaseClient() {
-	const apiKey = process.env.AGENTBASE_API_KEY;
-
-	if (!apiKey) {
-		throw new Error("AGENTBASE_API_KEY not found in environment variables");
-	}
-
-	const client = new Agentbase({
-		apiKey: apiKey,
-	});
-	return client;
-}
+import { getAgentbaseClient } from "@/lib/agentbase";
 
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json();
-		const { message, session, mode, system, rules, mcpServers } = body;
+		const { message, session, mode, system, rules } = body;
 
 		// Validate required fields
 		if (!message) {
@@ -37,16 +14,7 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		let agentbase: Agentbase;
-
-		try {
-			agentbase = createAgentbaseClient();
-		} catch {
-			return NextResponse.json(
-				{ error: "Agentbase SDK not available" },
-				{ status: 500 }
-			);
-		}
+		const agentbase = getAgentbaseClient();
 
 		// Use real Agentbase SDK with streaming disabled
 		const params = {
@@ -55,7 +23,6 @@ export async function POST(request: NextRequest) {
 			...(mode && { mode }),
 			...(system && { system }),
 			...(rules && { rules }),
-			...(mcpServers && { mcpServers }),
 			streaming: false, // Disable streaming for complete responses
 		};
 
@@ -69,7 +36,8 @@ export async function POST(request: NextRequest) {
 
 		// Return all responses
 		return NextResponse.json(responses);
-	} catch {
+	} catch (error) {
+		console.log(error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
 			{ status: 500 }
