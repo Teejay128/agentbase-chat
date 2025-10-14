@@ -12,7 +12,11 @@ import {
 	LoadingMessage,
 	ErrorMessage,
 	UserMessage,
-	AgentMessage,
+	AgentThinking,
+	AgentToolUse,
+	AgentResponse,
+	AgentCost,
+	AgentCompleted,
 } from "@/components/ChatMessages";
 
 import { SessionMessage } from "@/lib/types";
@@ -41,21 +45,60 @@ export function ChatContent({
 		<div ref={chatContainerRef} className="relative flex-1 overflow-y-auto">
 			<ChatContainerRoot>
 				<ChatContainerContent className="px-5 py-12">
-					{sessionMessages.map((message) =>
-						message.type == "user_message" && message.content ? (
-							<UserMessage
-								key={`user-${Date.now()}-${Math.random()}`}
-								content={message.content}
-							/>
-						) : (
-							<div
-								className="animate-fade-in"
-								key={`agent-${Date.now()}-${Math.random()}`}
-							>
-								<AgentMessage response={message} />
-							</div>
-						)
-					)}
+					{sessionMessages.map((message, index) => {
+						switch (message.type) {
+							case "user_message":
+								return (
+									<UserMessage
+										key={`user-${index}`}
+										content={message.content}
+									/>
+								);
+
+							case "agent_thinking":
+								return (
+									<AgentThinking
+										key={`thinking-${index}`}
+										content={message.content}
+									/>
+								);
+
+							case "agent_tool_use":
+								return (
+									<AgentToolUse
+										key={`tool-${index}`}
+										content={message.content}
+									/>
+								);
+
+							case "agent_response":
+								return (
+									<AgentResponse
+										key={`response-${index}`}
+										content={message.content}
+									/>
+								);
+
+							case "agent_cost":
+								return (
+									<AgentCost
+										key={`cost-${index}`}
+										cost={message.cost}
+										balance={message.balance}
+									/>
+								);
+
+							case "agent_completed":
+								return (
+									<AgentCompleted
+										key={`completed-${index}`}
+									/>
+								);
+
+							default:
+								return null;
+						}
+					})}
 
 					{isLoading && <LoadingMessage />}
 					{errorMessage && (

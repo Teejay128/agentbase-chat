@@ -14,9 +14,10 @@
 
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 
-import { PlusIcon, Search } from "lucide-react";
+import { PlusIcon, Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	Sidebar,
@@ -42,6 +43,20 @@ export function ChatSidebar({
 	switchSession,
 	newConversation,
 }: ChatSidebarProps) {
+	const [loadingSessionId, setLoadingSessionId] = useState<string | null>(
+		null
+	);
+
+	const handleSwitch = async (session: Session) => {
+		if (loadingSessionId || sessionId == session.id) return;
+		setLoadingSessionId(session.id);
+		try {
+			await switchSession(session);
+		} finally {
+			setLoadingSessionId(null);
+		}
+	};
+
 	return (
 		<Sidebar>
 			<SidebarHeader className="flex flex-row items-center justify-between gap-2 px-2 py-4">
@@ -78,7 +93,6 @@ export function ChatSidebar({
 						<span>New Chat</span>
 					</Button>
 				</div>
-
 				<SidebarMenu className="px-2">
 					{sessionList.length === 0 ? (
 						<div className="px-2 py-1 text-sm text-muted-foreground h-full">
@@ -89,21 +103,15 @@ export function ChatSidebar({
 							<SidebarMenuItem key={session.id} className="p-0">
 								<SidebarMenuButton
 									title={`Session ID: ${session.id}`}
-									data-active={sessionId == session.id}
-									className={
-										sessionId == session.id
-											? "bg-accent text-accent-foreground"
-											: ""
-									}
-									onClick={async () => {
-										await switchSession(session);
-									}}
+									isActive={sessionId == session.id}
+									onClick={() => handleSwitch(session)}
 								>
 									<span className="text-sm font-medium">
-										{new Date(
-											session.timestamp
-										).toLocaleString()}
+										{session.title}
 									</span>
+									{loadingSessionId === session.id && (
+										<Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+									)}
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 						))

@@ -10,13 +10,13 @@
 import React, { useState, useEffect } from "react";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { Popover, PopoverContent } from "@/components/ui/popover";
+import { Popover } from "@/components/ui/popover";
 
 import { ChatHeader } from "@/components/ChatHeader";
 import { ChatInput } from "@/components/ChatInput";
 import { ChatSidebar } from "@/components/ChatSidebar";
 import { ChatContent } from "@/components/ChatContent";
-import { AgentConfig } from "@/components/AgentConfig";
+import { ChatConfig } from "@/components/ChatConfig";
 
 import { SessionMessage, Session } from "@/lib/types";
 import { readSessionList, writeSessionList } from "@/lib/localStorage";
@@ -43,12 +43,23 @@ export default function FullChatApp() {
 		setIsLoading(false);
 	};
 
-	const createNewSession = async (newSessionId: string) => {
+	const createNewSession = async (
+		newSessionId: string,
+		agentResponse: SessionMessage[]
+	) => {
 		const exists = sessionList.some((s) => s.id === newSessionId);
 		if (exists) return;
 
+		const agentReply = agentResponse.find(
+			(item) => item.type === "agent_response" && item.content
+		);
+		const sessionTitle = agentReply
+			? `${agentReply.content?.substring(0, 40)}...`
+			: `Session-${newSessionId}`;
+
 		const newSession = {
 			id: newSessionId,
+			title: sessionTitle,
 			timestamp: Date.now(),
 		};
 
@@ -93,7 +104,7 @@ export default function FullChatApp() {
 
 			const newSessionId = agentResponse[0]?.session || null;
 			if (newSessionId && newSessionId !== sessionId) {
-				createNewSession(newSessionId);
+				createNewSession(newSessionId, agentResponse);
 			}
 
 			setSessionMessages((prev) => [...prev, ...agentResponse]);
@@ -124,18 +135,16 @@ export default function FullChatApp() {
 					newConversation={newConversation}
 				/>
 				<SidebarInset>
-					<PopoverContent className="w-80">
-						<AgentConfig
-							agentMode={agentMode}
-							setAgentMode={setAgentMode}
-							agentSystem={agentSystem}
-							setAgentSystem={setAgentSystem}
-							agentRules={agentRules}
-							setAgentRules={setAgentRules}
-						/>
-					</PopoverContent>
+					<ChatConfig
+						agentMode={agentMode}
+						setAgentMode={setAgentMode}
+						agentSystem={agentSystem}
+						setAgentSystem={setAgentSystem}
+						agentRules={agentRules}
+						setAgentRules={setAgentRules}
+					/>
 					<main className="flex h-screen flex-col overflow-hidden">
-						<ChatHeader />
+						<ChatHeader newConversation={newConversation} />
 						<ChatContent
 							sessionMessages={sessionMessages}
 							isLoading={isLoading}

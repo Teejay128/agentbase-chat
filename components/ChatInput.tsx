@@ -15,6 +15,22 @@ interface ChatInputProps {
 	isLoading: boolean;
 	handleSubmit: (prompt: string) => void;
 }
+const defaultSuggestions = [
+	{
+		label: "Search for Python tutorials",
+		value: "Search for Python tutorials",
+	},
+	{ label: "Create a Python script", value: "Create a Python script" },
+	{ label: "Scrape website data", value: "Scrape website data" },
+	{
+		label: "Research stock market data",
+		value: "Research stock market data",
+	},
+	{
+		label: "Set up a development environment",
+		value: "Set up a development environment",
+	},
+];
 
 export function ChatInput({
 	sessionId,
@@ -41,36 +57,27 @@ export function ChatInput({
 	return (
 		<div className="bg-background z-10 shrink-0 px-3 pb-3 md:px-5 md:pb-5">
 			{suggestions && (
-				<div className="flex flex-col items-start w-full mb-48 text-sm text-muted-foreground">
-					<h2 className="p-3">Try asking:</h2>
-					<PromptSuggestion
-						onClick={() => setPrompt("Tell me a joke")}
-					>
-						Tell me a funny joke
-					</PromptSuggestion>
+				<div className="w-full mb-32 text-sm text-muted-foreground">
+					<div className="mx-auto max-w-2xl px-4 md:px-6">
+						<h2 className="mb-4 text-base font-semibold text-foreground/90">
+							Welcome, what can I do for you?
+						</h2>
 
-					<PromptSuggestion
-						onClick={() => setPrompt("How does this work?")}
-					>
-						How does this work?
-					</PromptSuggestion>
-
-					<PromptSuggestion
-						onClick={() => setPrompt("Generate an image of a cat")}
-					>
-						Generate an image of a cat
-					</PromptSuggestion>
-
-					<PromptSuggestion onClick={() => setPrompt("Write a poem")}>
-						Write a poem
-					</PromptSuggestion>
-					<PromptSuggestion
-						onClick={() => setPrompt("Code a React component")}
-					>
-						Code a React component
-					</PromptSuggestion>
+						<div className="flex flex-col gap-2">
+							{defaultSuggestions.map((ssg, index) => (
+								<PromptSuggestion
+									key={index}
+									onClick={() => setPrompt(ssg.value)}
+									className="cursor-pointer rounded-lg px-4 py-2 transition-all hover:bg-accent/50 hover:text-foreground/90"
+								>
+									{ssg.label}
+								</PromptSuggestion>
+							))}
+						</div>
+					</div>
 				</div>
 			)}
+
 			<div className="mx-auto max-w-3xl">
 				<PromptInput
 					value={prompt}
