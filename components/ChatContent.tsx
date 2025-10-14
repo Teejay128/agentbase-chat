@@ -44,7 +44,7 @@ export function ChatContent({
 	return (
 		<div ref={chatContainerRef} className="relative flex-1 overflow-y-auto">
 			<ChatContainerRoot>
-				<ChatContainerContent className="px-5 py-12">
+				<ChatContainerContent className="px-2 py-6">
 					{sessionMessages.map((message, index) => {
 						switch (message.type) {
 							case "user_message":
