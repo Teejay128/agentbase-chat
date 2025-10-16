@@ -21,17 +21,17 @@ import {
 
 import { SessionMessage } from "@/lib/types";
 
-interface ChatContentProps {
+interface ChatContainerProps {
 	sessionMessages: SessionMessage[];
 	isLoading: boolean;
 	errorMessage: string;
 }
 
-export function ChatContent({
+export function ChatContainer({
 	sessionMessages,
 	isLoading,
 	errorMessage,
-}: ChatContentProps) {
+}: ChatContainerProps) {
 	const chatContainerRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {

@@ -15,20 +15,19 @@ interface ChatInputProps {
 	isLoading: boolean;
 	handleSubmit: (prompt: string) => void;
 }
+
 const defaultSuggestions = [
 	{
-		label: "Search for Python tutorials",
-		value: "Search for Python tutorials",
-	},
-	{ label: "Create a Python script", value: "Create a Python script" },
-	{ label: "Scrape website data", value: "Scrape website data" },
-	{
-		label: "Research stock market data",
-		value: "Research stock market data",
+		label: "Plan a 3-day trip to Paris, France, including flights and hotels",
+		value: "Plan a 3-day trip to Paris, France, including flights and hotels",
 	},
 	{
-		label: "Set up a development environment",
-		value: "Set up a development environment",
+		label: "Write a Python script to scrape headlines from a news website",
+		value: "Write a Python script to scrape headlines from a news website",
+	},
+	{
+		label: "Compare the latest features of Next.js and SvelteKit",
+		value: "Compare the latest features of Next.js and SvelteKit",
 	},
 ];
 
@@ -91,11 +90,7 @@ export function ChatInput({
 						className="min-h-[44px] pt-3 pl-4 text-base leading-[1.3]"
 					/>
 					<PromptInputActions className="justify-end pt-2 pr-2 pb-2">
-						<PromptInputAction
-							tooltip={
-								isLoading ? "Stop generation" : "Send message"
-							}
-						>
+						<PromptInputAction tooltip="Send message">
 							<Button
 								variant="default"
 								size="icon"

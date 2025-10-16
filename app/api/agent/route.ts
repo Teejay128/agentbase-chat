@@ -6,7 +6,6 @@ export async function POST(request: NextRequest) {
 		const body = await request.json();
 		const { message, session, mode, system, rules } = body;
 
-		// Validate required fields
 		if (!message) {
 			return NextResponse.json(
 				{ error: "Message is required" },
@@ -16,25 +15,22 @@ export async function POST(request: NextRequest) {
 
 		const agentbase = getAgentbaseClient();
 
-		// Use real Agentbase SDK with streaming disabled
 		const params = {
 			message,
 			...(session && { session }),
 			...(mode && { mode }),
 			...(system && { system }),
 			...(rules && { rules }),
-			streaming: false, // Disable streaming for complete responses
+			streaming: false,
 		};
 
 		const agentStream = await agentbase.runAgent(params);
 
-		// Collect all responses from the stream (even with streaming: false)
 		const responses = [];
 		for await (const response of agentStream) {
 			responses.push(response);
 		}
 
-		// Return all responses
 		return NextResponse.json(responses);
 	} catch (error) {
 		console.log(error);

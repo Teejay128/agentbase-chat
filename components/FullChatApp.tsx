@@ -15,14 +15,12 @@ import { Popover } from "@/components/ui/popover";
 import { ChatHeader } from "@/components/ChatHeader";
 import { ChatInput } from "@/components/ChatInput";
 import { ChatSidebar } from "@/components/ChatSidebar";
-import { ChatContent } from "@/components/ChatContent";
+import { ChatContainer } from "@/components/ChatContainer";
 import { ChatConfig } from "@/components/ChatConfig";
 
-import { SessionMessage, Session } from "@/lib/types";
+import { SessionMessage, Session, AgentMode } from "@/lib/types";
 import { readSessionList, writeSessionList } from "@/lib/localStorage";
 import { fetchSessionMessages, fetchAgentResponse } from "@/lib/api";
-
-type AgentMode = "flash" | "fast" | "max";
 
 export default function FullChatApp() {
 	const [sessionId, setSessionId] = useState<string | null>(null);
@@ -30,12 +28,12 @@ export default function FullChatApp() {
 	const [sessionMessages, setSessionMessages] = useState<SessionMessage[]>(
 		[]
 	);
+	const [errorMessage, setErrorMessage] = useState<string>("");
+	const [isLoading, setIsLoading] = useState(false);
+
 	const [agentMode, setAgentMode] = useState<AgentMode>("fast");
 	const [agentSystem, setAgentSystem] = useState<string>("");
 	const [agentRules, setAgentRules] = useState<string[]>([]);
-
-	const [errorMessage, setErrorMessage] = useState<string>("");
-	const [isLoading, setIsLoading] = useState(false);
 
 	const newConversation = () => {
 		setSessionId(null);
@@ -97,7 +95,7 @@ export default function FullChatApp() {
 			const agentResponse = await fetchAgentResponse({
 				message: userMessage.content,
 				sessionId,
-				mode: agentMode,
+				agentMode,
 				agentSystem,
 				agentRules,
 			});
@@ -145,7 +143,7 @@ export default function FullChatApp() {
 					/>
 					<main className="flex h-screen flex-col overflow-hidden">
 						<ChatHeader newConversation={newConversation} />
-						<ChatContent
+						<ChatContainer
 							sessionMessages={sessionMessages}
 							isLoading={isLoading}
 							errorMessage={errorMessage}

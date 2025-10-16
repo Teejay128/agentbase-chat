@@ -3,8 +3,8 @@ import { SessionMessage, SendMessageParams } from "@/lib/types";
 
 export async function fetchAgentResponse({
 	message,
-	mode = "fast",
 	sessionId,
+	agentMode = "fast",
 	agentSystem,
 	agentRules,
 }: SendMessageParams): Promise<SessionMessage[]> {
@@ -12,8 +12,8 @@ export async function fetchAgentResponse({
 
 	const body = {
 		message,
-		mode,
 		...(sessionId && { session: sessionId }),
+		mode: agentMode,
 		...(agentSystem && { system: agentSystem }),
 		...(agentRules && agentRules.length > 0 && { rules: agentRules }),
 	};

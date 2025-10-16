@@ -1,4 +1,5 @@
-// SDK response shape (from Agentbase)
+export type AgentMode = "flash" | "fast" | "max";
+
 export interface SessionMessage {
 	type: string;
 	content?: string;
@@ -20,8 +21,8 @@ export interface Session {
 
 export interface SendMessageParams {
 	message: string;
-	mode?: string;
 	sessionId?: string | null;
+	agentMode?: string;
 	agentSystem?: string;
 	agentRules?: string[];
 }

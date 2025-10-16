@@ -1,17 +1,3 @@
-/**
- * Agentbase Chat Application - Main Component
- *
- * This chat interface demonstrates the power of Agentbase AI agents.
- * Template originally created by Agentbase - https://agentbase.sh
- *
- * Features:
- * - Real-time AI chat with tool usage
- * - Source link integration
- * - Cost tracking and session management
- *
- * Powered by Agentbase SDK: https://docs.agentbase.sh
- */
-
 "use client";
 
 import { useState } from "react";

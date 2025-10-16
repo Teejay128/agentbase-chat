@@ -69,13 +69,13 @@ export function AgentThinking({ content }: { content?: string }) {
 	if (!content) return null;
 
 	return (
-		<div className="mx-auto w-full max-w-3xl px-2 sm:px-4 md:px-6 py-2">
+		<div className="mx-auto w-full max-w-3xl px-2 sm:px-4 md:px-6 pb-3">
 			<Reasoning>
-				<ReasoningTrigger className="text-sm text-muted-foreground">
+				<ReasoningTrigger className="ml-2 text-sm text-muted-foreground hover:bg-muted/50 px-2 py-1 rounded-md cursor-pointer transition-colors">
 					Show thinking...
 				</ReasoningTrigger>
 
-				<ReasoningContent className="ml-2 border-l-2 border-l-slate-200 px-2 pb-1 dark:border-l-slate-700">
+				<ReasoningContent className="ml-4 border-l-2 border-l-slate-200 px-2 pb-1 dark:border-l-slate-700">
 					{content}
 				</ReasoningContent>
 			</Reasoning>
@@ -169,36 +169,38 @@ export function AgentCompleted() {
 	const [liked, setLiked] = useState<boolean | null>(null);
 
 	return (
-		<MessageActions className="justify-end gap-3">
-			<MessageAction tooltip="Helpful">
-				<Button
-					variant="ghost"
-					size="icon"
-					className={`h-6 w-6 rounded-full p-0.5 ${
-						liked === true
-							? "bg-green-100 text-green-500"
-							: "text-muted-foreground hover:text-green-300"
-					}`}
-					onClick={() => setLiked(true)}
-				>
-					<ThumbsUp className="size-4" />
-				</Button>
-			</MessageAction>
+		<div className="mx-auto w-full max-w-xl px-2 sm:px-4 md:px-6">
+			<MessageActions className="flex w-full justify-end gap-3">
+				<MessageAction tooltip="Helpful">
+					<Button
+						variant="ghost"
+						size="icon"
+						className={`h-6 w-6 rounded-full p-0.5 ${
+							liked === true
+								? "bg-green-100 text-green-500"
+								: "text-muted-foreground hover:text-green-300"
+						}`}
+						onClick={() => setLiked(true)}
+					>
+						<ThumbsUp className="size-4" />
+					</Button>
+				</MessageAction>
 
-			<MessageAction tooltip="Not helpful">
-				<Button
-					variant="ghost"
-					size="icon"
-					className={`h-6 w-6 rounded-full p-0.5 ${
-						liked === false
-							? "bg-red-100 text-red-500"
-							: "text-muted-foreground hover:text-red-300"
-					}`}
-					onClick={() => setLiked(false)}
-				>
-					<ThumbsDown className="size-4" />
-				</Button>
-			</MessageAction>
-		</MessageActions>
+				<MessageAction tooltip="Not helpful">
+					<Button
+						variant="ghost"
+						size="icon"
+						className={`h-6 w-6 rounded-full p-0.5 ${
+							liked === false
+								? "bg-red-100 text-red-500"
+								: "text-muted-foreground hover:text-red-300"
+						}`}
+						onClick={() => setLiked(false)}
+					>
+						<ThumbsDown className="size-4" />
+					</Button>
+				</MessageAction>
+			</MessageActions>
+		</div>
 	);
 }
