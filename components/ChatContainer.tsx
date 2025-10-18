@@ -35,16 +35,27 @@ export function ChatContainer({
 	const chatContainerRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		if (chatContainerRef.current) {
-			chatContainerRef.current.scrollTop =
-				chatContainerRef.current.scrollHeight;
+		const container = chatContainerRef.current;
+		if (!container) return;
+
+		const isNearBottom =
+			container.scrollHeight -
+				container.scrollTop -
+				container.clientHeight <
+			150;
+
+		if (isNearBottom) {
+			container.scrollTo({
+				top: container.scrollHeight,
+				behavior: "smooth",
+			});
 		}
 	}, [sessionMessages]);
 
 	return (
 		<div ref={chatContainerRef} className="relative flex-1 overflow-y-auto">
 			<ChatContainerRoot>
-				<ChatContainerContent className="px-2 py-6">
+				<ChatContainerContent className="mx-auto w-full px-2 py-6 flex flex-col space-y-3 animate-fadeIn transition-all duration-300">
 					{sessionMessages.map((message, index) => {
 						switch (message.type) {
 							case "user_message":
@@ -54,7 +65,6 @@ export function ChatContainer({
 										content={message.content}
 									/>
 								);
-
 							case "agent_thinking":
 								return (
 									<AgentThinking
@@ -62,7 +72,6 @@ export function ChatContainer({
 										content={message.content}
 									/>
 								);
-
 							case "agent_tool_use":
 								return (
 									<AgentToolUse
@@ -70,7 +79,6 @@ export function ChatContainer({
 										content={message.content}
 									/>
 								);
-
 							case "agent_response":
 								return (
 									<AgentResponse
@@ -78,7 +86,6 @@ export function ChatContainer({
 										content={message.content}
 									/>
 								);
-
 							case "agent_cost":
 								return (
 									<AgentCost
@@ -87,14 +94,12 @@ export function ChatContainer({
 										balance={message.balance}
 									/>
 								);
-
 							case "agent_completed":
 								return (
 									<AgentCompleted
 										key={`completed-${index}`}
 									/>
 								);
-
 							default:
 								return null;
 						}

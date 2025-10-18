@@ -112,7 +112,7 @@ export function AgentToolUse({ content }: { content?: string }) {
 	}
 
 	return (
-		<div className="mx-auto w-full max-w-3xl px-2 sm:px-4 md:px-6">
+		<div className="mx-auto w-full max-w-3xl px-2 py-0 my-0 sm:px-4 md:px-6">
 			<Tool
 				className="my-0.5 border-none text-xs text-muted-foreground/80 
       [&_*]:text-xs [&_*]:leading-snug [&_code]:text-[10px] [&_pre]:text-[11px]"
@@ -159,7 +159,7 @@ export function AgentCost({
 		typeof balance === "number" ? balance.toFixed(2) : balance;
 
 	return (
-		<div className="mx-auto w-full max-w-3xl px-6 py-2 text-[10px] text-muted-foreground/60 text-left italic select-none">
+		<div className="mx-auto w-full max-w-3xl px-6 py-0 text-[10px] text-muted-foreground/60 text-left italic select-none">
 			(-${formattedCost}) • Bal: ${formattedBalance}
 		</div>
 	);

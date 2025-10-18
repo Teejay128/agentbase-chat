@@ -1,4 +1,4 @@
-# Building a Persistent AI Chat Agent with Next.js and Agentbase
+# How To Build An AI Agent Chat App with Agentbase
 
 ## Introduction to Agentbase
 
@@ -15,23 +15,23 @@ Agentbase provides a server-side solution for managing the entire agent orchestr
 
 ![Agentbase simplication diagram](./agentbase-simplicity.png)
 
-In this tutorial, we will create an application that allows users to interact with an agent with Next.js and the Agentbase platform. The application will feature persistent conversation history, handle real-time message events, and allow for dynamic agent configuration.
+In this tutorial, we will create an application that allows users to interact with an agent using Next.js and the Agentbase platform. The application will feature persistent conversation history, handle real-time message events, and allow for dynamic agent configuration.
 
 > Prequisites: Familiarity with Typescript and the Next.js App Router is expected. The user interface will be built using components from the [Shadcn](https://ui.shadcn.com/) and [Prompt Kit](https://www.prompt-kit.com/) libraries to focus solely on the Agentbase implementation.
 
 ### Executing an Initial API Request
 
-Interacting with the Agents API provided by Agentbase requires an admin token.
+To interact with the Agents API provided by Agentbase, you will need an API key.
 
-1. Navigate the [Agentbase website](https://agentbase.sh) and sign up.
-2. Generate a new Admin Token and copy the generated string.
-3. Top off credits and select a method of interacting with the API.
+1. Navigate to the [Agentbase website](https://agentbase.sh) and click on `Sign up`.
+2. Generate a new API key and keep the generated string somewhere safe.
+3. Top off credits and select your preferred method of interacting with the API (we will use the Typescript-sdk in this tutorial).
 
 ![API key creation and Agentbase setup](/agentbase-overview.png)
 
-> Registering with work email grants free credits.
+> Register with a work email to get free credits.
 
-With the admin token, send a request to the agent using a simple `cURL` command. This shows how directly accessible the API is, even without writing an application code.
+With the generated API key, we can send a request to the agent using a simple command. This goes to show how directly accessible the Agents API is; requests can still be made without writing any code.
 
 ```bash
 curl --request POST \
@@ -48,7 +48,7 @@ curl --request POST \
 ### Understanding the Message Event Stream
 Upon sending the request, the API responds with a **message event stream**. This is a series of data objects that represent the full lifecycle of the agent's internal operations.
 
-```json
+```bash
 data: {"session":"b5sssvkfykmty8e","type":"agent_started"}
 data: {"session":"b5sssvkfykmty8e","type":"agent_response","content":"Hello! I'm Base, a general-purpose AI agent developed by the Agentbase team. I'm designed to help you accomplish complex tasks by reasoning, planning, and using various tools effectively. Whether you need help with coding, research, file management, or web-related tasks, I'm here to assist you. What can I help you with today?"}
 data: {"session":"b5sssvkfykmty8e","type":"agent_cost","cost":"0.0174","balance":87.53800000000007,"deductionSuccess":true,"lowBalance":false}
@@ -56,9 +56,9 @@ data: {"session":"b5sssvkfykmty8e","type":"agent_step","stepNumber":1}
 data: {"session":"b5sssvkfykmty8e","type":"agent_completed"}
 ```
 
-Each object provides insight into the agent's process, for example:
+Each object gives details on the agent's current process, for example:
 
-- `agent_started`: Signals the beginning of the agent's execution
+- `agent_started`: Signals the beginning of the agent's execution.
 - `agent_response`: Contains the final, user-facing message from the agent.
 - `agent_cost`: Details the computational cost of the request and the remaining account balance.
 - `agent_completed`: Signals the end of the agent's execution for that request.
@@ -68,7 +68,9 @@ Our application will be built around this structured event stream, allowing the 
 > The full reference of object types can be found in the [Agentbase docs](https://docs.agentbase.sh/api/message-events).
 
 ## Scaffolding the Application User Interface
-With a foundational understanding of the Agentbase API, we will now construct the frontend of our application.
+Now that we understand how the Agentbase API works, we can begin constructing the frontend for our application.
+
+> If you would like to skip this process and go directly into adding Agentbase, clone this repo with the project already setup and the basic UI assembled.
 
 ### Project Setup and Dependency Installation
 First, Initialize a new Next.js application using the `create-next-app` command.
@@ -101,7 +103,7 @@ npx shadcn-ui@latest add "https://www.prompt-kit.com/c/chat-container.json" "htt
 > Check out the respective docs for installation instructions for [Shadcn/UI](https://ui.shadcn.com/docs/installation/next) and [Prompt Kit](https://ui.shadcn.com/docs/installation/next)
 
 ### Assembling the Static UI
-The application's UI is composed of several single-responsibility components orchestrated by a primary client component, `<FullChatApp />`.
+The application's UI comprises several components orchestrated by a primary client component, `<FullChatApp />`.
 
 First, update the main entry point of the application render this central component.
 
@@ -148,7 +150,7 @@ export function FullChatApp() {
 ```
 
 ### Chat Sub Components
-The sub components within the `<FullChatApp/>` are not our main convern for this article, so we will simply breeze to them:
+The sub components within `<FullChatApp>` each play specific parts in the application:
 
 - Chat Sidebar: This manages user sessions and conversations.
 	```js
@@ -171,8 +173,6 @@ The sub components within the `<FullChatApp/>` are not our main convern for this
 	}
 	```
 
-	> View the full code here: [`<ChatSidebar/>`]()
-
 - Chat Header: Holds the sidebar and agent config popover trigger as well as a new chat button.
 	
 	```js
@@ -186,8 +186,6 @@ The sub components within the `<FullChatApp/>` are not our main convern for this
 		);
 	}
 	```
-
-	> View the full code here: [`<ChatHeader/>`]()
 
 - Chat Input: This component holds the input field that handles submission of user messages.
 	
@@ -213,8 +211,6 @@ The sub components within the `<FullChatApp/>` are not our main convern for this
 	}
 	```
 
-	> View the full code here: [`<ChatInput/>`]()
-
 - Chat Container: Displays the messages between the user and the agent. Fow now, we populate it with sample messages:
 
 	```js
@@ -235,7 +231,7 @@ The sub components within the `<FullChatApp/>` are not our main convern for this
 	}
 	```
 
-	> View the full code here: [`<ChatContainer/>`]()
+Get the full code the components above from this [Github Repo]()
 
 ### Defining Message Components
 As discussed earlier, the Agent's API returns a series of message events. Let's define a set of components for displaying specifc event types.
@@ -271,11 +267,13 @@ export function AgentCompleted() { /* ... */ }
 This modular structure simplifies the main chat view. Since the rendering logic is now encapsulated within each message component, the `ChatContainer` only needs to use a `switch` statement to render the corresponding component for each message type.
 
 ## Basic Agentbase Integration
-With the application's UI in place, our next objective is to enable communication with the Agentbase API. For this, we will create a secure server-side endpoint, manage client-side state, and handle data flow to bring the chat application to life.
+With the application's UI in place, our next objective is to enable communication with the Agentbase API.
+
+For this, we'll create a server-side enpoint, management some states on the client side, and pass the flow of data to bring the application to life.
 
 ### Creating a Secure API Route
 
-To protect the `AGENTBASE_API_KEY`, all interactions with the Agentbase SDK must occur on the server of our application. We will create a Next.js API route that acts as a proxy between our client application and the Agentbase service.
+To protect the `AGENTBASE_API_KEY`, all interactions with the Agentbase SDK must occur on the server of our application. We will have a Next.js API route that acts as a proxy between our client application and the Agentbase service.
 
 Create a `.env` file to store the admin token obtained earlier.
 
@@ -303,7 +301,7 @@ export function getAgentbaseClient(): Agentbase {
 }
 ```
 
-Now, implement the API route. This endpoint will receive the user's message from the client, call the `runAgent` method using the secure client, and stream the complete event array back to the frontend.
+Now, add the code for the API route. This endpoint will receive the user's message from the client, call the `runAgent` method using the secure client, and stream the complete event array back to the frontend.
 
 ```js
 import { NextRequest, NextResponse } from "next/server";
@@ -312,7 +310,7 @@ import { getAgentbaseClient } from "@/lib/agentbase";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { message, session, mode, system, rules } = body;
+    const { message } = body;
 
     if (!message) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
@@ -321,8 +319,6 @@ export async function POST(request: NextRequest) {
     const agentbase = getAgentbaseClient();
     const agentStream = await agentbase.runAgent({
       message,
-      ...(session && { session }),
-      // ... other optional parameters
       streaming: false, // For this basic implementation, we await the full response
     });
 

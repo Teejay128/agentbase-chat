@@ -4,16 +4,19 @@ import { SessionMessage, SendMessageParams } from "@/lib/types";
 export async function fetchAgentResponse({
 	message,
 	sessionId,
-	agentMode = "fast",
+	agentMode,
 	agentSystem,
 	agentRules,
-}: SendMessageParams): Promise<SessionMessage[]> {
+	onChunk,
+}: SendMessageParams & { onChunk?: (msg: SessionMessage) => void }): Promise<
+	SessionMessage[] | void
+> {
 	if (!message.trim()) throw new Error("Message content cannot be empty");
 
 	const body = {
 		message,
 		...(sessionId && { session: sessionId }),
-		mode: agentMode,
+		...(agentMode && { mode: agentMode }),
 		...(agentSystem && { system: agentSystem }),
 		...(agentRules && agentRules.length > 0 && { rules: agentRules }),
 	};
@@ -39,15 +42,39 @@ export async function fetchAgentResponse({
 		throw new Error(errorMessage);
 	}
 
-	let agentResponse: SessionMessage[];
-	try {
-		agentResponse = await response.json();
-	} catch {
-		const text = await response.text();
-		throw new Error(`Failed to parse JSON: ${text.substring(0, 100)}...`);
-	}
+	const reader = response.body?.getReader();
+	const decoder = new TextDecoder();
 
-	return agentResponse;
+	if (!reader) throw new Error("No readable stream returned from response.");
+	let buffer = "";
+	while (true) {
+		const { done, value } = await reader.read();
+		if (done) break;
+
+		buffer += decoder.decode(value).trim();
+		const parts = buffer.split("<<<END_OF_CHUNK>>>");
+		buffer = parts.pop() || "";
+
+		for (const part of parts) {
+			if (!part.trim()) continue;
+			try {
+				const data = JSON.parse(part);
+				onChunk?.(data);
+			} catch (err) {
+				console.error("Failed to parse: ", part, err);
+			}
+		}
+	}
+	// // Non-streaming implementation
+	// let agentResponse: SessionMessage[];
+	// try {
+	// 	agentResponse = await response.json();
+	// } catch {
+	// 	const text = await response.text();
+	// 	throw new Error(`Failed to parse JSON: ${text.substring(0, 100)}...`);
+	// }
+
+	// return agentResponse;
 }
 
 export async function fetchSessionMessages(

@@ -62,12 +62,12 @@ export function ChatInput({
 							Welcome, what can I do for you?
 						</h2>
 
-						<div className="flex flex-col gap-2">
+						<div className="flex flex-col gap-2 mx-auto max-w-3xl w-full my-auto">
 							{defaultSuggestions.map((ssg, index) => (
 								<PromptSuggestion
 									key={index}
 									onClick={() => setPrompt(ssg.value)}
-									className="cursor-pointer rounded-lg px-4 py-2 transition-all hover:bg-accent/50 hover:text-foreground/90"
+									className="cursor-pointer rounded-lg px-4 py-2 transition-all hover:bg-accent/50 hover:text-foreground/90 break-words whitespace-pre-wrap text-left"
 								>
 									{ssg.label}
 								</PromptSuggestion>

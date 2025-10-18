@@ -43,17 +43,14 @@ export default function FullChatApp() {
 
 	const createNewSession = async (
 		newSessionId: string,
-		agentResponse: SessionMessage[]
+		agentResponse: SessionMessage
 	) => {
 		const exists = sessionList.some((s) => s.id === newSessionId);
 		if (exists) return;
 
-		const agentReply = agentResponse.find(
-			(item) => item.type === "agent_response" && item.content
-		);
-		const sessionTitle = agentReply
-			? `${agentReply.content?.substring(0, 40)}...`
-			: `Session-${newSessionId}`;
+		const sessionTitle =
+			`${agentResponse.content?.substring(0, 40)}...` ||
+			`Session-${newSessionId}`;
 
 		const newSession = {
 			id: newSessionId,
@@ -64,6 +61,29 @@ export default function FullChatApp() {
 		setSessionId(newSessionId);
 		setSessionList((prev) => [newSession, ...prev]);
 	};
+	// const createNewSession = async (
+	// 	newSessionId: string,
+	// 	agentResponse: SessionMessage[]
+	// ) => {
+	// 	const exists = sessionList.some((s) => s.id === newSessionId);
+	// 	if (exists) return;
+
+	// 	const agentReply = agentResponse.find(
+	// 		(item) => item.type === "agent_response" && item.content
+	// 	);
+	// 	const sessionTitle = agentReply
+	// 		? `${agentReply.content?.substring(0, 40)}...`
+	// 		: `Session-${newSessionId}`;
+
+	// 	const newSession = {
+	// 		id: newSessionId,
+	// 		title: sessionTitle,
+	// 		timestamp: Date.now(),
+	// 	};
+
+	// 	setSessionId(newSessionId);
+	// 	setSessionList((prev) => [newSession, ...prev]);
+	// };
 
 	const switchSession = async (session: Session) => {
 		if (session.id === sessionId) return;
@@ -92,20 +112,25 @@ export default function FullChatApp() {
 		if (!userMessage.content) return;
 
 		try {
-			const agentResponse = await fetchAgentResponse({
+			await fetchAgentResponse({
 				message: userMessage.content,
 				sessionId,
 				agentMode,
 				agentSystem,
 				agentRules,
+				onChunk: (msg: SessionMessage) => {
+					if (
+						msg.session &&
+						msg.session !== sessionId &&
+						msg.type == "agent_response"
+					) {
+						const newSessionId = msg.session;
+						createNewSession(newSessionId, msg);
+					}
+
+					setSessionMessages((prev) => [...prev, msg]);
+				},
 			});
-
-			const newSessionId = agentResponse[0]?.session || null;
-			if (newSessionId && newSessionId !== sessionId) {
-				createNewSession(newSessionId, agentResponse);
-			}
-
-			setSessionMessages((prev) => [...prev, ...agentResponse]);
 		} catch (err) {
 			setErrorMessage(
 				err instanceof Error ? err.message : "An error occurred"
