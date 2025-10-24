@@ -1,4 +1,4 @@
-// @/lib/agentbase.ts
+// @/lib/agentClient.ts
 import { Agentbase } from "agentbase-sdk";
 
 let agentbase: Agentbase | null = null;

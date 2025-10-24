@@ -13,16 +13,17 @@ export interface SessionMessage {
 	error?: string;
 }
 
-export interface Session {
-	id: string;
-	title: string;
-	timestamp: number;
-}
-
 export interface SendMessageParams {
 	message: string;
 	sessionId?: string | null;
 	agentMode?: string;
 	agentSystem?: string;
 	agentRules?: string[];
+	onChunk: (msg: SessionMessage) => void;
+}
+
+export interface Session {
+	id: string;
+	title: string;
+	timestamp: number;
 }

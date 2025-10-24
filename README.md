@@ -28,6 +28,17 @@ This repository is intended to be a companion to the step-by-step blog post. For
 
 ---
 
+## Following the Tutorial (Branches)
+
+This repository is structured to follow the tutorial step-by-step. Each branch corresponds to a completed section of the article.
+
+* [**`main`**](https://github.com/Teejay128/agentbase-chat-tutorial/tree/main) (Default): This branch contains the final, completed source code.
+* [**`section-2-static-ui`**](https://github.com/Teejay128/agentbase-chat-tutorial/tree/section-2-static-ui): The **starter branch** for the tutorial. Clone this branch to follow along from the beginning.
+* [**`section-3-integration`**](https://github.com/Teejay128/agentbase-chat-tutorial/tree/section-3-agentbase-integration): The completed code at the end of Section 3 (basic integration).
+* [**`section-4-persistence`**](https://github.com/Teejay128/agentbase-chat-tutorial/tree/section-4-session-persistence): The completed code at the end of Section 4 (persistence).
+
+---
+
 ## Tech Stack
 
 * **Framework**: [Next.js](https://nextjs.org/) (App Router)
@@ -38,15 +49,19 @@ This repository is intended to be a companion to the step-by-step blog post. For
 
 ---
 
-## Getting Started
+## Getting Started (Running the Final Code)
 
-To run this project locally, follow these steps:
+To run the **final, completed project** locally, follow these steps:
 
 1.  **Clone the repository:**
+    This will clone the `main` (default) branch.
+
     ```bash
-    git clone <branch repo link>
-    cd chat-agentbase
+    git clone [https://github.com/Teejay128/agentbase-chat-tutorial.git](https://github.com/Teejay128/agentbase-chat-tutorial.git)
+    cd agentbase-chat-tutorial
     ```
+    *To follow the tutorial from the start, clone the `section-2-static-ui` branch instead:*
+    `git clone -b section-2-static-ui https://github.com/Teejay128/agentbase-chat-tutorial.git`
 
 2.  **Install dependencies:**
     ```bash
@@ -66,5 +81,3 @@ To run this project locally, follow these steps:
     ```
 
     Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
----

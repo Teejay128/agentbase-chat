@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAgentbaseClient } from "@/lib/agentbase";
+import { getAgentbaseClient } from "@/lib/agentClient";
 
 // GET /api/agent/[sessionId]
 export async function GET(

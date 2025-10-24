@@ -141,7 +141,7 @@ export function ChatConfig({
 							onChange={(e) => setNewRuleInput(e.target.value)}
 							onKeyDown={(e) => e.key === "Enter" && addRule()}
 							placeholder="Enter new rule (e.g., 'Use Tailwind CSS')"
-							className="flex-grow h-7 text-xs"
+							className="grow h-7 text-xs"
 						/>
 						<Button
 							size="sm"

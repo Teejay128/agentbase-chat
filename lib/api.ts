@@ -8,9 +8,7 @@ export async function fetchAgentResponse({
 	agentSystem,
 	agentRules,
 	onChunk,
-}: SendMessageParams & { onChunk?: (msg: SessionMessage) => void }): Promise<
-	SessionMessage[] | void
-> {
+}: SendMessageParams): Promise<SessionMessage[] | void> {
 	if (!message.trim()) throw new Error("Message content cannot be empty");
 
 	const body = {
@@ -65,16 +63,6 @@ export async function fetchAgentResponse({
 			}
 		}
 	}
-	// // Non-streaming implementation
-	// let agentResponse: SessionMessage[];
-	// try {
-	// 	agentResponse = await response.json();
-	// } catch {
-	// 	const text = await response.text();
-	// 	throw new Error(`Failed to parse JSON: ${text.substring(0, 100)}...`);
-	// }
-
-	// return agentResponse;
 }
 
 export async function fetchSessionMessages(

@@ -10,8 +10,10 @@ import { PromptSuggestion } from "@/components/ui/prompt-suggestion";
 import { Button } from "@/components/ui/button";
 import { ArrowUp, Square } from "lucide-react";
 
+import { SessionMessage } from "@/lib/types";
+
 interface ChatInputProps {
-	sessionId: string | null;
+	sessionMessages: SessionMessage[];
 	isLoading: boolean;
 	handleSubmit: (prompt: string) => void;
 }
@@ -32,7 +34,7 @@ const defaultSuggestions = [
 ];
 
 export function ChatInput({
-	sessionId,
+	sessionMessages,
 	isLoading,
 	handleSubmit,
 }: ChatInputProps) {
@@ -40,12 +42,12 @@ export function ChatInput({
 	const [suggestions, setSuggestions] = useState<boolean>(true);
 
 	useEffect(() => {
-		if (sessionId) {
+		if (sessionMessages?.length) {
 			setSuggestions(false);
 		} else {
 			setSuggestions(true);
 		}
-	}, [sessionId]);
+	}, [sessionMessages]);
 
 	function submitPrompt() {
 		setSuggestions(false);
@@ -67,7 +69,7 @@ export function ChatInput({
 								<PromptSuggestion
 									key={index}
 									onClick={() => setPrompt(ssg.value)}
-									className="cursor-pointer rounded-lg px-4 py-2 transition-all hover:bg-accent/50 hover:text-foreground/90 break-words whitespace-pre-wrap text-left"
+									className="cursor-pointer rounded-lg px-4 py-2 transition-all hover:bg-accent/50 hover:text-foreground/90 wrap-break-word whitespace-pre-wrap text-left"
 								>
 									{ssg.label}
 								</PromptSuggestion>

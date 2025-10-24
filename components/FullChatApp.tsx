@@ -19,8 +19,8 @@ import { ChatContainer } from "@/components/ChatContainer";
 import { ChatConfig } from "@/components/ChatConfig";
 
 import { SessionMessage, Session, AgentMode } from "@/lib/types";
-import { readSessionList, writeSessionList } from "@/lib/localStorage";
 import { fetchSessionMessages, fetchAgentResponse } from "@/lib/api";
+import { readSessionList, writeSessionList } from "@/lib/localStorage";
 
 export default function FullChatApp() {
 	const [sessionId, setSessionId] = useState<string | null>(null);
@@ -45,45 +45,29 @@ export default function FullChatApp() {
 		newSessionId: string,
 		agentResponse: SessionMessage
 	) => {
-		const exists = sessionList.some((s) => s.id === newSessionId);
-		if (exists) return;
+		setSessionId((currentSessionId) => {
+			if (currentSessionId === newSessionId) return currentSessionId;
 
-		const sessionTitle =
-			`${agentResponse.content?.substring(0, 40)}...` ||
-			`Session-${newSessionId}`;
+			setSessionList((currentList) => {
+				const exists = currentList.some((s) => s.id === newSessionId);
+				if (exists) {
+					return currentList;
+				}
+				const sessionTitle =
+					`${agentResponse.content?.substring(0, 40)}...` ||
+					`Session-${newSessionId}`;
+				const newSession = {
+					id: newSessionId,
+					title: sessionTitle,
+					timestamp: Date.now(),
+				};
 
-		const newSession = {
-			id: newSessionId,
-			title: sessionTitle,
-			timestamp: Date.now(),
-		};
+				return [newSession, ...currentList];
+			});
 
-		setSessionId(newSessionId);
-		setSessionList((prev) => [newSession, ...prev]);
+			return newSessionId;
+		});
 	};
-	// const createNewSession = async (
-	// 	newSessionId: string,
-	// 	agentResponse: SessionMessage[]
-	// ) => {
-	// 	const exists = sessionList.some((s) => s.id === newSessionId);
-	// 	if (exists) return;
-
-	// 	const agentReply = agentResponse.find(
-	// 		(item) => item.type === "agent_response" && item.content
-	// 	);
-	// 	const sessionTitle = agentReply
-	// 		? `${agentReply.content?.substring(0, 40)}...`
-	// 		: `Session-${newSessionId}`;
-
-	// 	const newSession = {
-	// 		id: newSessionId,
-	// 		title: sessionTitle,
-	// 		timestamp: Date.now(),
-	// 	};
-
-	// 	setSessionId(newSessionId);
-	// 	setSessionList((prev) => [newSession, ...prev]);
-	// };
 
 	const switchSession = async (session: Session) => {
 		if (session.id === sessionId) return;
@@ -119,11 +103,7 @@ export default function FullChatApp() {
 				agentSystem,
 				agentRules,
 				onChunk: (msg: SessionMessage) => {
-					if (
-						msg.session &&
-						msg.session !== sessionId &&
-						msg.type == "agent_response"
-					) {
+					if (msg.session && msg.type == "agent_response") {
 						const newSessionId = msg.session;
 						createNewSession(newSessionId, msg);
 					}
@@ -174,7 +154,7 @@ export default function FullChatApp() {
 							errorMessage={errorMessage}
 						/>
 						<ChatInput
-							sessionId={sessionId}
+							sessionMessages={sessionMessages}
 							isLoading={isLoading}
 							handleSubmit={handleSubmit}
 						/>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAgentbaseClient } from "@/lib/agentbase";
+import { getAgentbaseClient } from "@/lib/agentClient";
 
 export async function POST(request: NextRequest) {
 	try {
@@ -21,7 +21,6 @@ export async function POST(request: NextRequest) {
 			...(mode && { mode }),
 			...(system && { system }),
 			...(rules && { rules }),
-			streaming: false,
 		};
 
 		const agentStream = await agentbase.runAgent(params);
@@ -614,14 +613,6 @@ export async function POST(request: NextRequest) {
 				"Cache-Control": "no-cache",
 			},
 		});
-
-		// // Non-streaming Response
-		// const responses = [];
-		// for await (const response of agentStream) {
-		// 	responses.push(response);
-		// }
-
-		// return NextResponse.json(responses);
 	} catch (error) {
 		console.log(error);
 		return NextResponse.json(
